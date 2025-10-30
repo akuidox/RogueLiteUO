@@ -170,5 +170,8 @@ func return_to_hub():
 
 	returning = true
 
-	# Change scene first (this will clean up everything automatically)
-	get_tree().change_scene_to_file("res://hub.tscn")
+	# Remove this screen from tree
+	queue_free()
+
+	# Defer scene change so it happens after we're cleaned up
+	get_tree().call_deferred("change_scene_to_file", "res://hub.tscn")
