@@ -9,8 +9,8 @@ var attack_cooldown_time = 0.4
 var attack_cooldown_timer = 0.0
 var can_attack = true
 
-# Projectile pour mage
-var projectile_scene = preload("res://projectile.tscn")
+# Projectile pour mage (loaded on demand)
+var projectile_scene = null
 
 # Skills (seront randomisées au portal)
 var skills = {
@@ -154,6 +154,14 @@ func attack_melee():
 func attack_ranged():
 	# Attaque à distance (mage)
 	var damage = int(skills["magic"] / 8)  # Magic skill determines damage
+
+	# Load projectile scene si pas encore chargé
+	if projectile_scene == null:
+		if ResourceLoader.exists("res://projectile.tscn"):
+			projectile_scene = load("res://projectile.tscn")
+		else:
+			print("ERROR: projectile.tscn not found! Create it to use mage attacks.")
+			return
 
 	# Direction vers la souris
 	var mouse_pos = get_global_mouse_position()

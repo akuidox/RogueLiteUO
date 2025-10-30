@@ -14,8 +14,8 @@ var is_attacking = false
 var attack_cooldown = 1.0
 var attack_timer = 0.0
 
-# Projectile pour ranger
-var projectile_scene = preload("res://projectile.tscn")
+# Projectile pour ranger (loaded on demand)
+var projectile_scene = null
 
 func _ready():
 	current_health = max_health
@@ -84,6 +84,14 @@ func attack_ranged():
 	# Attaque à distance (ranger)
 	if not player:
 		return
+
+	# Load projectile scene si pas encore chargé
+	if projectile_scene == null:
+		if ResourceLoader.exists("res://projectile.tscn"):
+			projectile_scene = load("res://projectile.tscn")
+		else:
+			print("ERROR: projectile.tscn not found! Ranger enemy can't attack.")
+			return
 
 	# Direction vers le joueur
 	var direction = (player.global_position - global_position).normalized()
