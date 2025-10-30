@@ -98,6 +98,10 @@ func attack():
 	tween.tween_property($Sprite2D, "scale", Vector2(1.2, 1.2), 0.1)
 	tween.tween_property($Sprite2D, "scale", Vector2(1.0, 1.0), 0.1)
 
+	# Audio: Play attack sound
+	if has_node("AttackSound"):
+		$AttackSound.play()
+
 	# Détecter les ennemis proches (dans un rayon de 200 pixels)
 	var attack_range = 200.0
 	var enemies = get_tree().get_nodes_in_group("enemy")
@@ -125,6 +129,10 @@ func attack():
 
 func take_damage(amount: int):
 	current_health -= amount
+
+	# Audio: Play hit sound
+	if has_node("HitSound"):
+		$HitSound.play()
 
 	# Camera shake when taking damage (stronger than attack shake)
 	if has_node("Camera2D"):

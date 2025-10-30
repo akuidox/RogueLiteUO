@@ -72,6 +72,10 @@ func attack_player():
 func take_damage(amount: int, hit_direction: Vector2 = Vector2.ZERO):
 	current_health -= amount
 
+	# Audio: Play hit sound
+	if has_node("HitSound"):
+		$HitSound.play()
+
 	# Knockback effect
 	if hit_direction != Vector2.ZERO:
 		velocity = hit_direction * 300.0
