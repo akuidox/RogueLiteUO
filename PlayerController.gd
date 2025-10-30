@@ -101,12 +101,15 @@ func attack():
 	# Détecter les ennemis proches (dans un rayon de 200 pixels)
 	var attack_range = 200.0
 	var enemies = get_tree().get_nodes_in_group("enemy")
+	var hit_something = false
 
 	for enemy in enemies:
 		if enemy and is_instance_valid(enemy):
 			var distance = global_position.distance_to(enemy.global_position)
 
 			if distance <= attack_range:
+				hit_something = true
+
 				# Calculer direction du knockback
 				var hit_direction = (enemy.global_position - global_position).normalized()
 
@@ -114,8 +117,20 @@ func attack():
 				if enemy.has_method("take_damage"):
 					enemy.take_damage(int(damage), hit_direction)
 
+	# Camera shake if we hit something
+	if hit_something and has_node("Camera2D"):
+		var camera = $Camera2D
+		if camera.has_node("CameraShake"):
+			camera.get_node("CameraShake").shake(0.2, 5.0)
+
 func take_damage(amount: int):
 	current_health -= amount
+
+	# Camera shake when taking damage (stronger than attack shake)
+	if has_node("Camera2D"):
+		var camera = $Camera2D
+		if camera.has_node("CameraShake"):
+			camera.get_node("CameraShake").shake(0.3, 8.0)
 
 	if current_health <= 0:
 		die()
