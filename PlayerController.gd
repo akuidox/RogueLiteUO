@@ -4,6 +4,11 @@ extends CharacterBody2D
 var speed = 300.0
 var archetype = "warrior"  # warrior, mage, support
 
+# Combat
+var attack_cooldown_time = 0.4
+var attack_cooldown_timer = 0.0
+var can_attack = true
+
 # Skills (seront randomisées au portal)
 var skills = {
 	"combat": 50,
@@ -22,18 +27,24 @@ func _ready():
 func _physics_process(delta):
 	# Récupérer input du joueur
 	var input_dir = Input.get_vector("move_left", "move_right", "move_up", "move_down")
-	
+
 	# Appliquer mouvement
 	if input_dir:
 		velocity = input_dir * speed
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, speed)
-	
+
 	move_and_slide()
-	
+
 	# Flip sprite selon direction
 	if input_dir.x != 0:
 		$Sprite2D.flip_h = input_dir.x < 0
+
+	# Update attack cooldown
+	if attack_cooldown_timer > 0:
+		attack_cooldown_timer -= delta
+		if attack_cooldown_timer <= 0:
+			can_attack = true
 
 func _input(event):
 	if event.is_action_pressed("attack"):
@@ -73,7 +84,19 @@ func randomize_skills():
 			skills["combat"] = randi_range(20, 50)
 
 func attack():
+	# Check cooldown
+	if not can_attack:
+		return
+
+	can_attack = false
+	attack_cooldown_timer = attack_cooldown_time
+
 	var damage = skills["combat"] / 10
+
+	# Visual feedback: sprite pulse
+	var tween = create_tween()
+	tween.tween_property($Sprite2D, "scale", Vector2(1.2, 1.2), 0.1)
+	tween.tween_property($Sprite2D, "scale", Vector2(1.0, 1.0), 0.1)
 
 	# Détecter les ennemis proches (dans un rayon de 200 pixels)
 	var attack_range = 200.0
