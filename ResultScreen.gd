@@ -43,7 +43,10 @@ func create_ui():
 	# Fond sombre transparent
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(0.1, 0.1, 0.1, 0.9)
-	style.border_width_all = 3
+	style.border_width_left = 3
+	style.border_width_right = 3
+	style.border_width_top = 3
+	style.border_width_bottom = 3
 	panel.add_theme_stylebox_override("panel", style)
 
 	# VBox pour le layout
