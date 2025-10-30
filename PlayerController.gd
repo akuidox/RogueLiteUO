@@ -9,6 +9,9 @@ var attack_cooldown_time = 0.4
 var attack_cooldown_timer = 0.0
 var can_attack = true
 
+# Projectile pour mage
+var projectile_scene = preload("res://projectile.tscn")
+
 # Skills (seront randomisées au portal)
 var skills = {
 	"combat": 50,
@@ -91,8 +94,6 @@ func attack():
 	can_attack = false
 	attack_cooldown_timer = attack_cooldown_time
 
-	var damage = skills["combat"] / 10
-
 	# Visual feedback: sprite pulse
 	var tween = create_tween()
 	tween.tween_property($Sprite2D, "scale", Vector2(1.2, 1.2), 0.1)
@@ -102,7 +103,18 @@ func attack():
 	if has_node("AttackSound"):
 		$AttackSound.play()
 
-	# Détecter les ennemis proches (dans un rayon de 200 pixels)
+	# Attack selon archetype
+	match archetype:
+		"warrior":
+			attack_melee()
+		"mage":
+			attack_ranged()
+		"support":
+			attack_support()
+
+func attack_melee():
+	# Attaque mêlée (warrior)
+	var damage = skills["combat"] / 10
 	var attack_range = 200.0
 	var enemies = get_tree().get_nodes_in_group("enemy")
 	var hit_something = false
@@ -118,6 +130,50 @@ func attack():
 				var hit_direction = (enemy.global_position - global_position).normalized()
 
 				# Infliger dégâts avec direction
+				if enemy.has_method("take_damage"):
+					enemy.take_damage(int(damage), hit_direction)
+
+	# Camera shake if we hit something
+	if hit_something and has_node("Camera2D"):
+		var camera = $Camera2D
+		if camera.has_node("CameraShake"):
+			camera.get_node("CameraShake").shake(0.2, 5.0)
+
+func attack_ranged():
+	# Attaque à distance (mage)
+	var damage = int(skills["magic"] / 8)  # Magic skill determines damage
+
+	# Direction vers la souris
+	var mouse_pos = get_global_mouse_position()
+	var direction = (mouse_pos - global_position).normalized()
+
+	# Spawner le projectile
+	var projectile = projectile_scene.instantiate()
+	get_tree().root.add_child(projectile)
+	projectile.setup(global_position, direction, damage, "player")
+
+	# Petit camera shake au tir
+	if has_node("Camera2D"):
+		var camera = $Camera2D
+		if camera.has_node("CameraShake"):
+			camera.get_node("CameraShake").shake(0.1, 3.0)
+
+func attack_support():
+	# Pour l'instant, support utilise une attaque mêlée avec plus de range
+	# TODO: Implémenter healing/buff system pour co-op
+	var damage = int((skills["combat"] + skills["support"]) / 15)
+	var attack_range = 250.0  # Plus de range que warrior
+	var enemies = get_tree().get_nodes_in_group("enemy")
+	var hit_something = false
+
+	for enemy in enemies:
+		if enemy and is_instance_valid(enemy):
+			var distance = global_position.distance_to(enemy.global_position)
+
+			if distance <= attack_range:
+				hit_something = true
+				var hit_direction = (enemy.global_position - global_position).normalized()
+
 				if enemy.has_method("take_damage"):
 					enemy.take_damage(int(damage), hit_direction)
 
