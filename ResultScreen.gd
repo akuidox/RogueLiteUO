@@ -12,19 +12,26 @@ var stats: Dictionary = {
 }
 
 var panel: PanelContainer = null
-var return_timer: float = 3.0
+var return_timer: float = 5.0  # Increased to 5 seconds
+var returning: bool = false  # Prevent multiple returns
 
 func _ready():
 	create_ui()
 	update_display()
 
 func _process(delta):
-	# Auto-return après 3 secondes
+	if returning:
+		return  # Stop processing if already returning
+
+	# Auto-return après 5 secondes
 	return_timer -= delta
 	if return_timer <= 0:
 		return_to_hub()
 
 func _input(event):
+	if returning:
+		return
+
 	# Ou retour immédiat avec E
 	if event.is_action_pressed("interact"):
 		return_to_hub()
@@ -106,7 +113,7 @@ func create_ui():
 	var instructions = Label.new()
 	instructions.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	instructions.add_theme_font_size_override("font_size", 16)
-	instructions.text = "[E] Return to Hub  |  Auto-return in 3s..."
+	instructions.text = "[E] Return to Hub  |  Auto-return in 5s..."
 	vbox.add_child(instructions)
 
 func update_display():
@@ -158,4 +165,14 @@ func update_display():
 	damage_label.text = "Damage Dealt: %d" % damage
 
 func return_to_hub():
+	if returning:
+		return  # Already returning, don't do it twice
+
+	returning = true
+
+	# Clean up this screen before changing scenes
+	queue_free()
+
+	# Small delay to ensure cleanup, then change scene
+	await get_tree().create_timer(0.1).timeout
 	get_tree().change_scene_to_file("res://hub.tscn")
