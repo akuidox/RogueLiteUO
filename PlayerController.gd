@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 # Stats du joueur
-var speed = 200.0
+var speed = 300.0
 var archetype = "warrior"  # warrior, mage, support
 
 # Skills (seront randomisées au portal)
