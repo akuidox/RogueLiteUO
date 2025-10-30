@@ -107,9 +107,12 @@ func attack():
 			var distance = global_position.distance_to(enemy.global_position)
 
 			if distance <= attack_range:
-				# Infliger dégâts
+				# Calculer direction du knockback
+				var hit_direction = (enemy.global_position - global_position).normalized()
+
+				# Infliger dégâts avec direction
 				if enemy.has_method("take_damage"):
-					enemy.take_damage(int(damage))
+					enemy.take_damage(int(damage), hit_direction)
 
 func take_damage(amount: int):
 	current_health -= amount

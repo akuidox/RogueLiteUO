@@ -69,14 +69,23 @@ func attack_player():
 
 		is_attacking = false
 
-func take_damage(amount: int):
+func take_damage(amount: int, hit_direction: Vector2 = Vector2.ZERO):
 	current_health -= amount
 
-	# Flash rouge (effet visuel simple)
+	# Knockback effect
+	if hit_direction != Vector2.ZERO:
+		velocity = hit_direction * 300.0
+
+	# Enhanced visual flash with tween
 	if has_node("Sprite2D"):
-		$Sprite2D.modulate = Color.RED
-		await get_tree().create_timer(0.1).timeout
-		$Sprite2D.modulate = Color.WHITE
+		var tween = create_tween()
+		tween.tween_property($Sprite2D, "modulate", Color.RED, 0.05)
+		tween.tween_property($Sprite2D, "modulate", Color.WHITE, 0.15)
+
+	# Hit-stop for impact feel (brief freeze frame)
+	get_tree().paused = true
+	await get_tree().create_timer(0.03, true, false, true).timeout
+	get_tree().paused = false
 
 	# Mourir si HP = 0
 	if current_health <= 0:
