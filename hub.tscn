@@ -1,0 +1,40 @@
+[gd_scene load_steps=3 format=3 uid="uid://ba3wyvu13xg2m"]
+
+[ext_resource type="PackedScene" uid="uid://d0h4aaa5amtxh" path="res://player.tscn" id="1_l10or"]
+[ext_resource type="PackedScene" uid="uid://smnmbdxy1c88" path="res://portal.tscn" id="2_hjueh"]
+
+[node name="Hub" type="Node2D"]
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_left = -1000.0
+offset_top = -1000.0
+offset_right = 1000.0
+offset_bottom = 1000.0
+color = Color(0.16206557, 0.1620656, 0.16206557, 1)
+
+[node name="Player" parent="." instance=ExtResource("1_l10or")]
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+
+[node name="Portal 1 (Easy)" parent="." instance=ExtResource("2_hjueh")]
+position = Vector2(-277, 197)
+
+[node name="Easy" type="Label" parent="Portal 1 (Easy)"]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="Portal 2 (Challenging)" parent="." instance=ExtResource("2_hjueh")]
+position = Vector2(-3, 199)
+difficulty = 1
+
+[node name="Challenging" type="Label" parent="Portal 2 (Challenging)"]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[node name="Portal 3 (Hard)" parent="." instance=ExtResource("2_hjueh")]
+position = Vector2(244, 203)
+difficulty = 2
+
+[node name="Hard" type="Label" parent="Portal 3 (Hard)"]
+offset_right = 40.0
+offset_bottom = 23.0
