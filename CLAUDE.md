@@ -38,11 +38,22 @@ The project uses 1920x1080 viewport with viewport stretching mode.
 - Enemies must be in "enemy" group to be counted
 
 **Player System (PlayerController.gd)**
-- Three archetypes: warrior (high combat), mage (high magic), support (balanced)
+- Three archetypes with distinct attack styles:
+  - **Warrior**: Melee combat (200px range, combat skill scales damage)
+  - **Mage**: Ranged projectiles (600px range, magic skill scales damage)
+  - **Support**: Extended melee (250px range, designed for co-op healing - TODO)
 - Skills dictionary: combat, magic, support, health
-- Attack range: 200 pixels
 - Must be in "player" group for detection
 - Skills get randomized when entering portal (within archetype limits)
+- Attack cooldown: 0.4 seconds with visual feedback (sprite pulse, camera shake)
+- Movement speed: 300 pixels/second
+
+**Projectile System (Projectile.gd)**
+- Reusable for player mage attacks and enemy ranger attacks (future)
+- Configurable: speed (400px/s), damage, max distance (600px)
+- `owner_group` parameter prevents hitting teammates (co-op ready)
+- Auto-cleanup on collision or max distance
+- See PROJECTILE_SETUP.md for scene creation
 
 **Enemy AI (Enemy.gd)**
 - Detection range: 400 pixels (starts chasing player)
@@ -55,6 +66,12 @@ The project uses 1920x1080 viewport with viewport stretching mode.
 - Auto-attached to entities with `max_health` and `current_health` properties
 - Updates every frame by reading parent's current_health
 
+**Combat Feedback System**
+- **Hit Effects (Enemy.gd)**: Knockback, red flash animation, brief hit-stop (0.03s freeze frame)
+- **Camera Shake (CameraShake.gd)**: Light shake on enemy hit, stronger on player damage
+- **Audio Hooks**: Ready for AttackSound, HitSound (nodes need manual setup - see AUDIO_SETUP.md)
+- **Visual Feedback**: Sprite pulse on attack, damage numbers (TODO)
+
 ## Input Actions
 
 Defined in project.godot:
@@ -64,8 +81,9 @@ Defined in project.godot:
 
 ## Scene Structure
 
-**player.tscn**: CharacterBody2D with PlayerController.gd, sprite, camera
-**enemy.tscn**: CharacterBody2D with Enemy.gd, sprite, health bar
+**player.tscn**: CharacterBody2D with PlayerController.gd, sprite, camera (needs CameraShake node + audio nodes)
+**enemy.tscn**: CharacterBody2D with Enemy.gd, sprite, health bar (needs HitSound audio node)
+**projectile.tscn**: Area2D with Projectile.gd for ranged attacks (needs manual creation - see PROJECTILE_SETUP.md)
 **portal.tscn**: Area2D with Portal.gd, difficulty detection zones
 **hub.tscn**: Hub world with player spawn and 3 portals
 **test_dungeon.tscn**: Combat arena with DungeonManager node and enemy spawns
