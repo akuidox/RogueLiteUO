@@ -23,6 +23,12 @@ var skills = {
 var current_health = 100
 var max_health = 100
 
+# Stats tracking
+var total_damage_dealt: int = 0
+
+# ResultScreen preload
+const ResultScreen = preload("res://ResultScreen.gd")
+
 func _ready():
 	# Initialiser selon archetype
 	setup_archetype(archetype)
@@ -137,6 +143,7 @@ func attack_melee():
 				# Infliger dégâts avec direction
 				if enemy.has_method("take_damage"):
 					enemy.take_damage(int(damage), hit_direction)
+					total_damage_dealt += int(damage)  # Track damage
 
 	# Camera shake if we hit something
 	if hit_something and has_node("Camera2D"):
@@ -156,6 +163,9 @@ func attack_ranged():
 	var projectile = projectile_scene.instantiate()
 	get_tree().root.add_child(projectile)
 	projectile.setup(global_position, direction, damage, "player")
+
+	# Track damage (approximation - projectile might miss)
+	total_damage_dealt += damage
 
 	# Petit camera shake au tir
 	if has_node("Camera2D"):
@@ -181,12 +191,16 @@ func attack_support():
 
 				if enemy.has_method("take_damage"):
 					enemy.take_damage(int(damage), hit_direction)
+					total_damage_dealt += int(damage)  # Track damage
 
 	# Camera shake if we hit something
 	if hit_something and has_node("Camera2D"):
 		var camera = $Camera2D
 		if camera.has_node("CameraShake"):
 			camera.get_node("CameraShake").shake(0.2, 5.0)
+
+func get_damage_dealt() -> int:
+	return total_damage_dealt
 
 func take_damage(amount: int):
 	current_health -= amount
@@ -205,6 +219,25 @@ func take_damage(amount: int):
 		die()
 
 func die():
-	# Retourner au hub après un court délai
-	await get_tree().create_timer(1.5).timeout
-	get_tree().change_scene_to_file("res://hub.tscn")
+	# Get stats from dungeon manager
+	var dungeon_manager = get_tree().get_first_node_in_group("dungeon_manager")
+
+	var run_time = 0.0
+	var kills = 0
+
+	if dungeon_manager:
+		var end_time = Time.get_ticks_msec() / 1000.0
+		run_time = end_time - dungeon_manager.start_time
+		kills = dungeon_manager.enemies_killed
+
+	var stats = {
+		"time": run_time,
+		"kills": kills,
+		"damage_dealt": total_damage_dealt
+	}
+
+	# Show death screen
+	var result_screen = CanvasLayer.new()
+	result_screen.set_script(ResultScreen)
+	get_tree().root.add_child(result_screen)
+	result_screen.setup(ResultScreen.ResultType.DEFEAT, stats)
