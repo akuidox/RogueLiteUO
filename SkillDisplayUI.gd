@@ -71,29 +71,31 @@ func update_display():
 	if not player:
 		return
 
-	# Update archetype
-	archetype_label.text = player.archetype.to_upper()
+	# Update archetype with simplified display
+	var style_text = ""
+	match player.archetype:
+		"warrior":
+			style_text = "MELEE"
+			archetype_label.modulate = Color.RED
+		"mage":
+			style_text = "RANGED"
+			archetype_label.modulate = Color.CYAN
+		"support":
+			style_text = "SUPPORT"
+			archetype_label.modulate = Color.GREEN
+		_:
+			style_text = player.archetype.to_upper()
+			archetype_label.modulate = Color.WHITE
 
-	# Get skills
-	var skills = player.skills
-	var combat = skills.get("combat", 0)
-	var magic = skills.get("magic", 0)
-	var support_skill = skills.get("support", 0)
+	archetype_label.text = style_text
 
-	# Find highest skill pour color-coding
-	var highest = max(combat, magic, support_skill)
+	# SIMPLIFIED: Hide skill numbers (always 100/0/0 now)
+	# Just show the playstyle, not confusing numbers
+	combat_label.visible = false
+	magic_label.visible = false
+	support_label.visible = false
 
-	# Update labels avec color-coding
-	combat_label.text = "Combat: %d" % combat
-	combat_label.modulate = Color.GREEN if combat == highest and combat > 0 else Color.WHITE
-
-	magic_label.text = "Magic: %d" % magic
-	magic_label.modulate = Color.GREEN if magic == highest and magic > 0 else Color.WHITE
-
-	support_label.text = "Support: %d" % support_skill
-	support_label.modulate = Color.GREEN if support_skill == highest and support_skill > 0 else Color.WHITE
-
-	# Update health
+	# Update health - this is the important stat
 	health_label.text = "HP: %d / %d" % [player.current_health, player.max_health]
 
 	# Color health based on percentage

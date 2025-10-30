@@ -65,37 +65,39 @@ func set_archetype(type: String):
 	setup_archetype(type)
 
 func setup_archetype(type: String):
+	# Simplified: Just define attack style and HP
 	match type:
-		"warrior":
-			skills["combat"] = 80
+		"warrior":  # MELEE
+			skills["combat"] = 100
 			skills["magic"] = 0
-			skills["support"] = 20
+			skills["support"] = 0
 			max_health = 150
-		"mage":
-			skills["combat"] = 20
-			skills["magic"] = 80
+		"mage":  # RANGED
+			skills["combat"] = 0
+			skills["magic"] = 100
 			skills["support"] = 0
 			max_health = 80
-		"support":
-			skills["combat"] = 30
-			skills["magic"] = 30
-			skills["support"] = 80
+		"support":  # SUPPORT (healing for co-op)
+			skills["combat"] = 0
+			skills["magic"] = 0
+			skills["support"] = 100
 			max_health = 100
 
 	current_health = max_health
 
-func randomize_skills():
-	# Randomiser les skills (appelé au portal)
-	match archetype:
-		"warrior":
-			skills["combat"] = randi_range(60, 100)
-			skills["support"] = randi_range(0, 40)
-		"mage":
-			skills["magic"] = randi_range(60, 100)
-			skills["support"] = randi_range(0, 40)
-		"support":
-			skills["support"] = randi_range(60, 100)
-			skills["combat"] = randi_range(20, 50)
+# COMMENTED OUT: Skill randomization removed for simplicity
+# Can re-enable later when we add build variety
+#func randomize_skills():
+#	match archetype:
+#		"warrior":
+#			skills["combat"] = randi_range(60, 100)
+#			skills["support"] = randi_range(0, 40)
+#		"mage":
+#			skills["magic"] = randi_range(60, 100)
+#			skills["support"] = randi_range(0, 40)
+#		"support":
+#			skills["support"] = randi_range(60, 100)
+#			skills["combat"] = randi_range(20, 50)
 
 func attack():
 	# Check cooldown

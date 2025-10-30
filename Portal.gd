@@ -56,11 +56,11 @@ func enter_dungeon():
 	if not player:
 		return
 
-	# Randomiser les skills du joueur
-	if player.has_method("randomize_skills"):
-		player.randomize_skills()
+	# SIMPLIFIED: No skill randomization
+	# Skills are now fixed per archetype for clarity
+	# (Can re-enable randomization later for build variety)
 
-	# Choisir un donjon aléatoire
+	# Choisir un dongeon aléatoire
 	var dungeons = dungeon_scenes[difficulty]
 	var chosen_dungeon = dungeons[randi() % dungeons.size()]
 
