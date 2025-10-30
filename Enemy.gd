@@ -1,6 +1,7 @@
 extends CharacterBody2D
 
 # Stats de l'ennemi
+@export_enum("chaser", "tank", "ranger") var enemy_type: String = "chaser"
 @export var max_health: int = 50
 @export var speed: float = 150.0
 @export var attack_damage: int = 10
@@ -12,6 +13,9 @@ var player = null
 var is_attacking = false
 var attack_cooldown = 1.0
 var attack_timer = 0.0
+
+# Projectile pour ranger
+var projectile_scene = preload("res://projectile.tscn")
 
 func _ready():
 	current_health = max_health
@@ -63,11 +67,31 @@ func attack_player():
 		is_attacking = true
 		attack_timer = attack_cooldown
 
-		# Infliger dégâts au joueur
-		if player and player.has_method("take_damage"):
-			player.take_damage(attack_damage)
+		# Type d'attaque selon enemy_type
+		if enemy_type == "ranger":
+			attack_ranged()
+		else:
+			attack_melee()
 
 		is_attacking = false
+
+func attack_melee():
+	# Attaque mêlée (chaser, tank)
+	if player and player.has_method("take_damage"):
+		player.take_damage(attack_damage)
+
+func attack_ranged():
+	# Attaque à distance (ranger)
+	if not player:
+		return
+
+	# Direction vers le joueur
+	var direction = (player.global_position - global_position).normalized()
+
+	# Spawner le projectile
+	var projectile = projectile_scene.instantiate()
+	get_tree().root.add_child(projectile)
+	projectile.setup(global_position, direction, attack_damage, "enemy")
 
 func take_damage(amount: int, hit_direction: Vector2 = Vector2.ZERO):
 	current_health -= amount
