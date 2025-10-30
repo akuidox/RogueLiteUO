@@ -53,6 +53,11 @@ func _input(event):
 	if event.is_action_pressed("attack"):
 		attack()
 
+func set_archetype(type: String):
+	# Appelé par ArchetypeSelector dans le hub
+	archetype = type
+	setup_archetype(type)
+
 func setup_archetype(type: String):
 	match type:
 		"warrior":
