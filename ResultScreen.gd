@@ -170,9 +170,5 @@ func return_to_hub():
 
 	returning = true
 
-	# Clean up this screen before changing scenes
-	queue_free()
-
-	# Small delay to ensure cleanup, then change scene
-	await get_tree().create_timer(0.1).timeout
+	# Change scene first (this will clean up everything automatically)
 	get_tree().change_scene_to_file("res://hub.tscn")
